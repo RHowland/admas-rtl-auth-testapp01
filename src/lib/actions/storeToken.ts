@@ -36,13 +36,13 @@
 import { MailType } from "@root/src/types";
 import { generateVerificationToken } from "../token";
 import { db } from "@root/dbConnect";
-import { verificationToken as verificationTokenSchema } from "@/lib/database/schema"
+import { verificationTokens as verificationTokenSchema } from "@/lib/database/schema"
 
 
-export const storeToken = async ({type , userId} : {type : MailType , userId : string}) => {
+export const storeToken = async ({type , userId} : {type : MailType , userId : number}) => {
     const token = generateVerificationToken();
 
-    const expiresHours : number = Number(process.env.EXPIER_HOURS)
+    const expiresHours : number = Number(process.env.TOKEN_EXPIER_HOURS)
     const expiresTime =  expiresHours * 60 * 60 * 1000
     const tokenData = {
       token,

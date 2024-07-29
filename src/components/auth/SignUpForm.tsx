@@ -1,9 +1,9 @@
 // Component Name : SignUpForm
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as v from 'valibot'
+import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { SignUpSchema } from "@/zodSchemaTypes"
+
 import { toast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { signUp } from "@/lib/actions/auth.actions"
@@ -23,15 +23,17 @@ import { MailType } from "@/types"
 import Spinner from "@/components/Sppinner"
 import { useLoading } from "@/hooks/useLoading"
 import { useEffect } from "react"
+import { SignUpSchema } from '@root/src/valibot/SchemaTypes';
 
 export function SignUpForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
   const router = useRouter()
 
-  const form = useForm<z.infer<typeof SignUpSchema>>({
-    resolver: zodResolver(SignUpSchema),
+  const form = useForm<v.InferOutput<typeof SignUpSchema>>({
+    resolver: valibotResolver(SignUpSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -39,7 +41,7 @@ export function SignUpForm() {
   })
 
   // section 1 
-  async function onSubmit(values: z.infer<typeof SignUpSchema>) {
+  async function onSubmit(values: v.InferOutput<typeof SignUpSchema>) {
     handleLoadingState({isLoading : true})
     const res = await signUp(values)
     if (res.success) {
@@ -82,10 +84,10 @@ export function SignUpForm() {
         />{" "}
         <FormField
           control={form.control}
-          name="name"
+          name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>First Name</FormLabel>
               <FormControl>
                 <Input  placeholder="Ex: Jhon" {...field} />
               </FormControl>
@@ -93,6 +95,21 @@ export function SignUpForm() {
             </FormItem>
           )}
         />{" "}
+
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl>
+                <Input  placeholder="Ex: Duo" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />{" "}
+
         
         <FormField
           control={form.control}

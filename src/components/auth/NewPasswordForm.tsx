@@ -1,9 +1,9 @@
 // Component Name : NewPasswordForm
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as v from 'valibot'
+import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -14,13 +14,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { NewPassworSchema } from "@/zodSchemaTypes"
 import { toast } from "@/components/ui/use-toast"
 import { useRouter, useSearchParams } from "next/navigation"
 import { newPassword } from "@/lib/actions/auth.actions"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { useEffect } from "react"
+import { NewPasswordSchema } from '@root/src/valibot/SchemaTypes';
 
 export function NewPasswordForm() {
   // secition 1 
@@ -30,8 +30,8 @@ export function NewPasswordForm() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token") || "";
 
-  const form = useForm<z.infer<typeof NewPassworSchema>>({
-    resolver: zodResolver(NewPassworSchema),
+  const form = useForm<v.InferOutput<typeof NewPasswordSchema>>({
+    resolver: valibotResolver(NewPasswordSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -39,7 +39,7 @@ export function NewPasswordForm() {
   })
 
   // section 3 
-  async function onSubmit(values: z.infer<typeof NewPassworSchema>) {
+  async function onSubmit(values: v.InferOutput<typeof NewPasswordSchema>) {
     handleLoadingState({isLoading : true});
     const res = await newPassword(values , token)
     if (res.success) {

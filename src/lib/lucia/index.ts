@@ -1,3 +1,4 @@
+
 //lib.auth.ts
 import { BetterSqlite3Adapter } from "@lucia-auth/adapter-sqlite";
 import { Lucia } from 'lucia';
@@ -13,8 +14,8 @@ import { sqliteDatabase } from "@root/dbConnect";
 */
 
 const adapter = new BetterSqlite3Adapter(sqliteDatabase, {
-  user: 'user',
-  session: 'session',
+  user: 'users',
+  session: 'sessions',
 })
  
 export const lucia = new Lucia(adapter, {
@@ -25,8 +26,8 @@ export const lucia = new Lucia(adapter, {
   },
   getUserAttributes: (attributes: any) => {
     return {
-      name: attributes.name,
-      email : attributes.email,
+      name: attributes.user_name,
+      email : attributes.user_email,
     };
   },
 });
@@ -86,7 +87,7 @@ declare module 'lucia' {
 }
 
 interface DatabaseUserAttributes {
-	email: string;
-  name: string;
+	user_email: string;
+  user_name: string;
 }
 

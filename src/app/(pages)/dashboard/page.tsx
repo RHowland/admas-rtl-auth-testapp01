@@ -4,15 +4,25 @@ import { Button } from "@/components/ui/button"
 import {  validateRequest } from "@/lib/lucia"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { signOut } from "@root/src/lib/actions/auth.actions"
+import { signOut } from "@/lib/actions/auth.actions"
+import { hasPermission } from "@/lib/findPermission"
 
 
 export default async function Dashboard() {
   const { user } = await validateRequest()
-
+  
   // section 1
   if(!user) {
     return redirect("/sign-in")
+  }
+  const isPermitted = await hasPermission(user?.email , 'Dashboard Menu')
+  if(!isPermitted){
+    return (
+      <main className="flex min-h-screen flex-col items-center p-24">
+        <h1 className="font-bold">`You have not the permssion to access this page`</h1>
+        <Link className="text-blue-700  hover:bg-slate-200 rounded-md" href="/">Navigate to Home Page</Link>
+      </main>
+    )
   }
 
   // section 2

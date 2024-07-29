@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:migration": "npx tsx migrate.ts"
+    "db:migration": "npx tsx migrate.ts",
+    "db:seed": "npx tsx seed.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.3.4",
+    "@hookform/resolvers": "^3.9.0",
     "@lucia-auth/adapter-sqlite": "^3.0.1",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-navigation-menu": "^1.1.4",
@@ -31,7 +32,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^10.0.0",
-    "zod": "^3.23.8"
+    "valibot": "^0.36.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.10",

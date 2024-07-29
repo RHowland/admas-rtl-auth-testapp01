@@ -1,1 +1,0 @@
-ALTER TABLE user ADD `updated_at` integer NOT NULL;

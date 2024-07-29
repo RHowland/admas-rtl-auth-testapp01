@@ -2,9 +2,9 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as v from 'valibot'
+import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { RestPasswordSchema } from "@/zodSchemaTypes"
 import { toast } from "@/components/ui/use-toast"
 import { resetPassword } from "@/lib/actions/auth.actions"
 import Link from "next/link"
@@ -24,21 +23,22 @@ import { MailType } from "@/types"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { useEffect } from "react"
+import { ResetPasswordSchema } from '@root/src/valibot/SchemaTypes';
 
 export function ResetPasswordForm() {
   // section 1
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
 const router = useRouter()
 // section 2 
-  const form = useForm<z.infer<typeof RestPasswordSchema>>({
-    resolver: zodResolver(RestPasswordSchema),
+  const form = useForm<v.InferOutput<typeof ResetPasswordSchema>>({
+    resolver: valibotResolver(ResetPasswordSchema),
     defaultValues: {
       email: "",
     },
   })
 
   // Section 3
-  async function onSubmit(values: z.infer<typeof RestPasswordSchema>) {
+  async function onSubmit(values: v.InferOutput<typeof ResetPasswordSchema>) {
     handleLoadingState({isLoading : true});
     const res = await resetPassword(values)
     if (res.success) {
@@ -59,6 +59,7 @@ const router = useRouter()
     return () => {
       handleLoadingState({isLoading : false});
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   return (

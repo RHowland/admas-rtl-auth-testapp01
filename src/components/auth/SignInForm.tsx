@@ -2,9 +2,9 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import * as v from 'valibot'
+import { valibotResolver } from '@hookform/resolvers/valibot';
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,20 +15,20 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { SignInSchema } from "@/zodSchemaTypes"
 import { toast } from "@/components/ui/use-toast"
 import { signIn } from "@/lib/actions/auth.actions"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
+import { SignInSchema } from '@root/src/valibot/SchemaTypes';
 
 
 export function SignInForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
   const router = useRouter()
-  const form = useForm<z.infer<typeof SignInSchema>>({
-    resolver: zodResolver(SignInSchema),
+  const form = useForm<v.InferOutput<typeof SignInSchema>>({
+    resolver: valibotResolver(SignInSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -36,7 +36,7 @@ export function SignInForm() {
   })
 
   // Section 1 
-  async function onSubmit(values: z.infer<typeof SignInSchema>) {
+  async function onSubmit(values: v.InferOutput<typeof SignInSchema>) {
     handleLoadingState({isLoading : true});
     const res = await signIn(values)
     if (res.success) {

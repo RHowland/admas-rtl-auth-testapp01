@@ -29,7 +29,7 @@
  * - The module uses UUID for generating unique user IDs.
  * - The module interacts with a database using the Drizzle ORM.
  * - The module sends emails using a mail service.
- * Question: Did you have to write any unusual code?
+ * Question: Did you have to write  unusual code?
  * Answer  : NO.
  * ------------------------------
  * Section Comments:   (Enter "none" if you have no comments)
@@ -68,67 +68,86 @@
 
 
 "use server"
-import { z } from "zod"
-import { SignInSchema, SignUpSchema ,RestPasswordSchema, NewPassworSchema } from "@root/src/zodSchemaTypes"
+
+import * as v from 'valibot'
+import { SignInSchema, SignUpSchema ,ResetPasswordSchema, NewPasswordSchema } from "@root/src/valibot/SchemaTypes"
 import { lucia, validateRequest } from "@/lib/lucia"
 import { cookies } from "next/headers"
 import * as argon2 from "argon2"
+import { InferSelectModel   } from "drizzle-orm";
 
-import {  user as userSchema } from "@/lib/database/schema"
-import { v4 as uuidv4 } from 'uuid';
+import {  users as userSchema } from "@/lib/database/schema"
 import { db } from "@root/dbConnect"
 import { eq } from "drizzle-orm"
 import { MailType } from "@root/src/types"
 import { storeToken } from "./storeToken"
 import { generateMailReact, sendMailTask } from "../mail-service"
 import { verifyToken } from "./verifyToken"
+import { formatDate } from '../utils'
 
 
-export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
-  const hashedPassword = await argon2.hash(values.password)
-  const userId = uuidv4();
+
+const sendMail = async ( user : InferSelectModel<typeof userSchema> , mailtype: MailType ) => {
+
+  const userId = user.id
+  const userName = user.userName ?? "Mr."
+  const userEmail = user.userEmail
+
+  const { token , expiresHours  } = await storeToken({type : mailtype , userId});
+
+  const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-token?token=${token}&type=${mailtype}`;
   
+  const mailReact = generateMailReact({ userName, tokenUrl : verificationLink , token , type : mailtype , expiresTime : `${expiresHours} Hours` });
+
+  const { id : messageId } = await sendMailTask({type: mailtype , react : mailReact ,targetMail : userEmail  , subject : "Email Verifications" });
+  
+  return messageId
+}
+
+
+export const signUp = async (values: v.InferOutput<typeof SignUpSchema>) => {
   try {
-    const existingUsers : any = await db.select().from(userSchema).where(eq(userSchema.email ,values.email ));
-    if(existingUsers[0] || existingUsers.lenght > 0){
+    const parsedResult = v.safeParse(SignUpSchema, values);
+    if(!parsedResult.success) throw new Error(parsedResult.issues.toLocaleString())
+
+    const hashedPassword = await argon2.hash(values.password)
+
+    const existingUsers  = await db.select().from(userSchema).where(eq(userSchema.userEmail ,values.email ));
+    if(existingUsers[0] || existingUsers.length > 0){
       return {
         error: "Email Already Registered",
       }
     }
 
     const user =  {
-      id: userId,
-      name: values.name,
-      email: values.email,
+      userFirstName : values.firstName,
+      userLastName : values.lastName,
+      userName: values.firstName + ' ' + values.lastName,
+      userEmail: values.email,
       hashedPassword,
-      updatedAt: Date.now()
+      updatedAt: formatDate()
     }
   
-    const storedUser : any =  await db.insert(userSchema).values(user).returning();
+    const storedUser =  await db.insert(userSchema).values(user).returning();
     
-    const { token , expiresHours  } = await storeToken({type : MailType["signUpVerify"] , userId});
-
-    const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-token?token=${token}&type=${MailType["signUpVerify"]}`;
-    
-    const mailReact = generateMailReact({ userName: user.name , tokenUrl : verificationLink , token , type : MailType["signUpVerify"] , expiresTime : `${expiresHours} Hours` });
-
-    const { id : messageId } = await sendMailTask({type: MailType["signUpVerify"] , react : mailReact ,targetMail : user.email  , subject : "Verify Your Email Address" });
+    const messageId =  await sendMail(storedUser[0] , MailType["signUpVerify"])
 
     return {
       success: true,
       message: "SignUp Successful! Please Verify Your Email.",
       data: {
-        userId : storedUser.id,
+        userId : storedUser[0].id,
+        messageId
       },
     }
-  } catch (error: any) {
+  } catch (error: any ) {
     return {
       error: error?.message,
     }
   }
 }
 
-export const newPassword = async (values: z.infer<typeof NewPassworSchema> , token : string) => {
+export const newPassword = async (values: v.InferOutput<typeof NewPasswordSchema> , token : string) => {
   const tokenResult = await  verifyToken(token , "newPassword")
   if(!tokenResult.success){
     return {
@@ -136,17 +155,15 @@ export const newPassword = async (values: z.infer<typeof NewPassworSchema> , tok
     } 
   }
   
-  
-  
   try {
-    const existingUsers : any = await db.select().from(userSchema).where(eq(userSchema.id , tokenResult.data.userId ));
-    if(!existingUsers[0] || existingUsers.lenght === 0){
+    const existingUsers   = await db.select().from(userSchema).where(eq(userSchema.id , tokenResult.data.userId ));
+    if(!existingUsers[0] || existingUsers.length === 0){
       return {
         error: "User isn't registered yet. Please SignUp",
       }
     }
     const hashedPassword = await argon2.hash(values.password)
-    await db.update(userSchema).set({hashedPassword, updatedAt : Date.now()}).where(eq(userSchema.id , existingUsers[0].id )).returning();
+    await db.update(userSchema).set({hashedPassword, updatedAt : formatDate()}).where(eq(userSchema.id , existingUsers[0].id )).returning();
 
   
 
@@ -164,42 +181,30 @@ export const newPassword = async (values: z.infer<typeof NewPassworSchema> , tok
   }
 }
 
-export const resendEmailVerification = async (values: z.infer<typeof RestPasswordSchema>) => {
+export const resendEmailVerification = async (values: v.InferOutput<typeof ResetPasswordSchema>) => {
   
+
   try {
-    const existingUsers : any = await db.select().from(userSchema).where(eq(userSchema.email ,values.email ));
-    if(!existingUsers[0] || existingUsers.lenght === 0){
-      return {
-        error: "Email isn't Not Registered , Please signUp",
-      }
-    }
-    if(existingUsers[0].isVerified){
-      return {
-        error: "Email Already verified. Please Sign-in",
-      }
-    }
-    const userId = existingUsers[0].id
-    const userName = existingUsers[0].name
-    const userEmail = existingUsers[0].email
 
+    const parsedResult = v.safeParse(ResetPasswordSchema, values);
+    if(!parsedResult.success) throw new Error(parsedResult.issues.toLocaleString())
+
+    const existingUsers = await db.select().from(userSchema).where(eq(userSchema.userEmail ,values.email ));
+    if(!existingUsers[0] || existingUsers.length === 0) throw new Error( "Email isn't Not Registered , Please signUp");
     
-    const { token , expiresHours  } = await storeToken({type : MailType["signUpVerify"] , userId});
+    if(existingUsers[0].isVerified) throw new Error( "Email Already verified. Please Sign-in");
 
-    const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-token?token=${token}&type=${MailType["signUpVerify"]}`;
-    
-    const mailReact = generateMailReact({ userName, tokenUrl : verificationLink , token , type : MailType["signUpVerify"] , expiresTime : `${expiresHours} Hours` });
-
-    const { id : messageId } = await sendMailTask({type: MailType["signUpVerify"] , react : mailReact ,targetMail : userEmail  , subject : "Email Verifications" });
+    const messageId =  await sendMail(existingUsers[0] , MailType["signUpVerify"])
 
     return {
       success: true,
       message: "We have sent a email verification link to your email.",
       data: {
-        userId,
+        userId : existingUsers[0].id,
         messageId
       },
     }
-  } catch (error: any) {
+  } catch (error: any ) {
     return {
       error: error?.message,
     }
@@ -208,38 +213,21 @@ export const resendEmailVerification = async (values: z.infer<typeof RestPasswor
 
 
 
-export const resetPassword = async (values: z.infer<typeof RestPasswordSchema>) => {
+export const resetPassword = async (values:  v.InferOutput<typeof ResetPasswordSchema>) => {
   
   try {
-    const existingUsers : any = await db.select().from(userSchema).where(eq(userSchema.email ,values.email ));
-    if(!existingUsers[0] || existingUsers.lenght === 0){
-      return {
-        error: "Email isn't Not Registered , Please signUp",
-      }
-    }
-    if(!existingUsers[0].isVerified){
-      return {
-        error: "Email isn't verified. Please verify your Email address.",
-      }
-    }
-    const userId = existingUsers[0].id
-    const userName = existingUsers[0].name
-    const userEmail = existingUsers[0].email
+    const parsedResult = v.safeParse(ResetPasswordSchema, values);
+    if(!parsedResult.success) throw new Error(parsedResult.issues.toLocaleString())
 
-    
-    const { token , expiresHours  } = await storeToken({type : MailType["resetPass"] , userId});
+    const existingUsers   = await db.select().from(userSchema).where(eq(userSchema.userEmail ,values.email ));
+    if(!existingUsers[0] || existingUsers.length === 0) throw new Error( "Email isn't Not Registered , Please signUp");
 
-    const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-token?token=${token}&type=${MailType["resetPass"]}`;
-    
-    const mailReact = generateMailReact({ userName, tokenUrl : verificationLink , token , type : MailType["resetPass"] , expiresTime : `${expiresHours} Hours` });
-
-    const { id : messageId } = await sendMailTask({type: MailType["resetPass"] , react : mailReact ,targetMail : userEmail  , subject : "Password Reset" });
-
+    const messageId =  await sendMail(existingUsers[0], MailType["resetPass"])
     return {
       success: true,
       message: "Reset Password link is sent to your email.",
       data: {
-        userId,
+        userId: existingUsers[0].id,
         messageId
       },
     }
@@ -252,71 +240,72 @@ export const resetPassword = async (values: z.infer<typeof RestPasswordSchema>) 
 
 
 
-export const signIn = async (values: z.infer<typeof SignInSchema>) => {
+export const signIn = async (values:  v.InferOutput<typeof SignInSchema>) => {
   try {
-    SignInSchema.parse(values)
-  } catch (error: any) {
+    const parsedResult = v.safeParse(SignInSchema, values);
+    if(!parsedResult.success) throw new Error(parsedResult.issues.toLocaleString())
+
+      const result = await db.select().from(userSchema).where(eq(userSchema.userEmail ,values.email ));
+      const existingUser = result[0];
+    
+      if (!existingUser) {
+        return {
+          isEmailVerified: true,
+          error: "User not found",
+        }
+      }
+    
+      if(!existingUser.isVerified){
+        return {
+          isEmailVerified: false,
+          error: "User's email isn't verified.Please verify your email",
+        }
+      }
+    
+      if (!existingUser.hashedPassword) {
+        
+        return {
+          isEmailVerified: true,
+          error: "User email or password doesn't match",
+        }
+      }
+    
+      const isValidPassword = await argon2.verify(
+        existingUser.hashedPassword,
+        values.password
+      )
+    
+      if (!isValidPassword) {
+        return {
+          error: "Incorrect useremail or password",
+        }
+      }
+    
+      const session = await lucia.createSession(existingUser.id.toString(), {
+          email: existingUser.userEmail,
+          user_name: existingUser.userName
+      });
+      const sessionCookie = lucia.createSessionCookie(session.id);
+    
+        cookies().set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes
+      );
+    
+      return {
+        success: true,
+        message: "Login Successful!",
+        data: {
+          userId : existingUser.id 
+        },
+      }
+  } catch (error: any ) {
+    console.log(error);
     return {
+      
       error: error.message,
     }
-  }
-
- 
-
-  const result : any = await db.select().from(userSchema).where(eq(userSchema.email ,values.email ));
-  const existingUser = result[0];
-
-  if (!existingUser) {
-    return {
-      isEmailVerified: true,
-      error: "User not found",
-    }
-  }
-
-  if(!existingUser.isVerified){
-    return {
-      isEmailVerified: false,
-      error: "User's email isn't verified.Please verify your email",
-    }
-  }
-
-  if (!existingUser.hashedPassword) {
-    
-    return {
-      isEmailVerified: true,
-      error: "User email or password doesn't match",
-    }
-  }
-
-  const isValidPassword = await argon2.verify(
-    existingUser.hashedPassword,
-    values.password
-  )
-
-  if (!isValidPassword) {
-    return {
-      error: "Incorrect useremail or password",
-    }
-  }
-
-  const session = await lucia.createSession(existingUser.id, {
-      email: existingUser.email,
-      name: existingUser.name
-  });
-  const sessionCookie = lucia.createSessionCookie(session.id);
-
-    cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-
-  return {
-    success: true,
-    message: "Login Successful!",
-    data: {
-      userId : existingUser.id 
-    },
   }
 }
 
@@ -342,7 +331,7 @@ export const signOut = async () => {
       sessionCookie.value,
       sessionCookie.attributes
     )
-  } catch (error: any) {
+  } catch (error: any ) {
     return {
       error: error?.message,
     }
