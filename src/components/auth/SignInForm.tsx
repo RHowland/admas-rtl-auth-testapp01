@@ -22,13 +22,19 @@ import { useRouter } from "next/navigation"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { SignInSchema } from '@root/src/valibot/SchemaTypes';
+import { useState } from 'react';
+import CountdownTimer from '../CountdownTimer';
+import { PasswordInput } from '../ui/passwordInput';
+import PasswordComplexity from '../PasswordComplexity';
 
 
 export function SignInForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
+  const [nextLoginTime , setNextLoginTime] = useState(0);
   const router = useRouter()
   const form = useForm<v.InferOutput<typeof SignInSchema>>({
     resolver: valibotResolver(SignInSchema),
+    mode : "onChange",
     defaultValues: {
       email: "",
       password: "",
@@ -39,6 +45,9 @@ export function SignInForm() {
   async function onSubmit(values: v.InferOutput<typeof SignInSchema>) {
     handleLoadingState({isLoading : true});
     const res = await signIn(values)
+    if(res?.data?.nextAttemptTime){
+      setNextLoginTime(res.data.nextAttemptTime);
+    }
     if (res.success) {
       toast({
         variant: "default",
@@ -52,13 +61,14 @@ export function SignInForm() {
     }
     toast({
       variant: "destructive",
-      description: res.error,
+      description: res.message,
     })
     handleLoadingState({isLoading : false});
   }
   return (
     // Section 2 
     <Form {...form}>
+      {nextLoginTime > 0 && ( <CountdownTimer  nextAttemptTime={nextLoginTime}  />)}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
         <FormField
           control={form.control}
@@ -80,12 +90,16 @@ export function SignInForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="****" type="password" {...field} />
+                <PasswordInput placeholder="****" type="password" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {form.watch() && form.formState.dirtyFields.password && (
+          <PasswordComplexity password={form.getValues('password')} />
+        )}
+        
         <Button type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
       </form>
       {/* Section 3 */}

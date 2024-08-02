@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     permission_id       INTEGER    NOT NULL,
     permission_name     TEXT (255) NOT NULL,
     is_permitted        TEXT NOT NULL CHECK(is_permitted IN ('Y', 'N')),
-    created_at          TEXT DEFAULT CURRENT_TIMESTAMP,
+    created_at          TEXT DEFAULT (current_timestamp),
 	updated_at          TEXT,
     FOREIGN KEY (role_id) REFERENCES roles(role_id) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (role_name) REFERENCES roles(role_name) ON UPDATE no action ON DELETE cascade,

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, integer, sqliteTable, uniqueIndex   } from "drizzle-orm/sqlite-core";
+import { text, integer, sqliteTable, uniqueIndex , primaryKey  } from "drizzle-orm/sqlite-core";
 
 // User table with roles as a comma-separated string
 export const users = sqliteTable("users", {
@@ -29,9 +29,19 @@ export const users = sqliteTable("users", {
   }),
   deletedAt: text("deleted_at"),
   isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 });
+
+export const failedLoginAttempts = sqliteTable("failed_login_attempts", {
+  id: integer("id", {
+    mode: 'number'
+  }).primaryKey({ autoIncrement: true }),
+    userEmail: text('user_email').notNull().references(() => users.userEmail, { onDelete: 'cascade' }).notNull(),
+    timeStamp: text("timestamp").notNull(),
+},(table) => ({
+  unique: uniqueIndex("unique_failed_login_attempts").on(table.userEmail, table.timeStamp)
+}))
 
 
 export const userRoles = sqliteTable("user_roles", {
@@ -46,7 +56,7 @@ export const userRoles = sqliteTable("user_roles", {
   roleName: text("role_name", {
     length: 255,
   }).references(() => roles.roleName, { onDelete: 'cascade' }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 }, (table) => ({
   unique: uniqueIndex("unique_user_role").on(table.userId, table.roleId)
@@ -66,7 +76,7 @@ export const roles = sqliteTable("roles", {
   isVisible: text("is_visible", {
     enum: ["Y" , "N"], 
   }).notNull(), 
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 });
 
@@ -83,7 +93,7 @@ export const permissions = sqliteTable("permissions", {
   permissionType : text("permission_type", {
     enum: ["content" , "page"], 
   }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 });
 
@@ -105,7 +115,7 @@ export const rolePermissions = sqliteTable("role_permissions", {
   isPermitted: text("is_permitted", {
     enum: [ "Y" , "N"]
   }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 }, (table) => ({
   unique: uniqueIndex("unique_role_permission").on(table.roleId, table.permissionId)
@@ -164,7 +174,7 @@ export const sessions = sqliteTable("sessions", {
 //     length: 255,
 //   }),
 //   isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
-//   createdAt: integer("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+//   createdAt: integer("created_at").notNull().default(sql`current_timestamp`),
 //   updatedAt: integer("updated_at").notNull(),
 // });
 
@@ -176,7 +186,7 @@ export const sessions = sqliteTable("sessions", {
 //   type: text("type", {
 //     enum: ["resetPass", "signUpVerify" , "newPassword"], 
 //   }).notNull(),
-//   createdAt: integer("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+//   createdAt: integer("created_at").notNull().default(sql`current_timestamp`),
 //   expiresAt: integer("expires_at").notNull(), 
 // });
 

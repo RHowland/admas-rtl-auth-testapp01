@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 	soft_delete_flag    TEXT(2),
 	deleted_at          TEXT,
 	is_verified         INTEGER DEFAULT false NOT NULL,
-	created_at          TEXT DEFAULT CURRENT_TIMESTAMP,
+	created_at          TEXT DEFAULT (current_timestamp),
 	updated_at          TEXT
 );
 

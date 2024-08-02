@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS roles (
     role_id     INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	role_name   TEXT(255) NOT NULL,
 	is_visible  TEXT NOT NULL,
-	created_at  TEXT DEFAULT CURRENT_TIMESTAMP,
+	created_at  TEXT DEFAULT (current_timestamp),
 	updated_at  TEXT
 );
 
