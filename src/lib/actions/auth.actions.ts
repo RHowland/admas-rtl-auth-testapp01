@@ -84,6 +84,7 @@ import { storeToken } from "./storeToken"
 import { generateMailReact, sendMailTask } from "../mail-service"
 import { verifyToken } from "./verifyToken"
 import { formatDate } from '../utils'
+import { canLogedIn, recordFaildLoginAttempt, removeFaildLoginAttempt } from './loginAttempts'
 
 
 
@@ -125,7 +126,9 @@ export const signUp = async (values: v.InferOutput<typeof SignUpSchema>) => {
       userName: values.firstName + ' ' + values.lastName,
       userEmail: values.email,
       hashedPassword,
-      updatedAt: formatDate()
+      updatedAt: formatDate(),
+      bypassRbacFlag : 'N',
+      softDeleteFlag: 'N'
     }
   
     const storedUser =  await db.insert(userSchema).values(user).returning();
@@ -251,22 +254,38 @@ export const signIn = async (values:  v.InferOutput<typeof SignInSchema>) => {
       if (!existingUser) {
         return {
           isEmailVerified: true,
-          error: "User not found",
+          success: false,
+          message: "User not found",
         }
       }
     
       if(!existingUser.isVerified){
         return {
           isEmailVerified: false,
-          error: "User's email isn't verified.Please verify your email",
+          success: false,
+          message: "User's email isn't verified.Please verify your email",
         }
       }
+
+      const isPassed = await canLogedIn(existingUser.userEmail);
+      
+      if(!isPassed.canAttempt) {
+        return {
+            success: false,
+            message:`"For security reasons, we limit the number of failed log-in attempts.  Please contact your website administrator for assitance with logging in.`,
+            data: {
+              nextAttemptTime : isPassed.nextAttemptTime
+            },
+          }
+      }
+      
     
       if (!existingUser.hashedPassword) {
-        
+        await recordFaildLoginAttempt(existingUser.userEmail);
         return {
           isEmailVerified: true,
-          error: "User email or password doesn't match",
+          success: false,
+          message: "User email or password doesn't match",
         }
       }
     
@@ -276,11 +295,14 @@ export const signIn = async (values:  v.InferOutput<typeof SignInSchema>) => {
       )
     
       if (!isValidPassword) {
+        await recordFaildLoginAttempt(existingUser.userEmail);
         return {
-          error: "Incorrect useremail or password",
+          success: false,
+          message: "Incorrect useremail or password",
         }
       }
-    
+
+      await removeFaildLoginAttempt(existingUser.userEmail);
       const session = await lucia.createSession(existingUser.id.toString(), {
           email: existingUser.userEmail,
           user_name: existingUser.userName
@@ -301,10 +323,9 @@ export const signIn = async (values:  v.InferOutput<typeof SignInSchema>) => {
         },
       }
   } catch (error: any ) {
-    console.log(error);
     return {
-      
-      error: error.message,
+      success: false,
+      message: error.message,
     }
   }
 }

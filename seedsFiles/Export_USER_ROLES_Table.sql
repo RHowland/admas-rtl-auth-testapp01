@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
 	user_email      TEXT(255) NOT NULL,
 	role_id         INTEGER NOT NULL,
 	role_name       TEXT(255) NOT NULL,
-	created_at         TEXT DEFAULT CURRENT_TIMESTAMP,
+	created_at         TEXT DEFAULT (current_timestamp),
 	updated_at         TEXT,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (user_email) REFERENCES users(user_email) ON UPDATE no action ON DELETE cascade,

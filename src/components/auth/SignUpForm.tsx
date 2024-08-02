@@ -24,6 +24,8 @@ import Spinner from "@/components/Sppinner"
 import { useLoading } from "@/hooks/useLoading"
 import { useEffect } from "react"
 import { SignUpSchema } from '@root/src/valibot/SchemaTypes';
+import { PasswordInput } from '../ui/passwordInput';
+import PasswordComplexity from '../PasswordComplexity';
 
 export function SignUpForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
@@ -118,12 +120,15 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="****" type="password" {...field} />
+              <PasswordInput placeholder="****" type="password" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {form.watch() && form.formState.dirtyFields.password && (
+          <PasswordComplexity password={form.getValues('password')} />
+        )}
         <FormField
           control={form.control}
           name="confirmPassword"
@@ -131,7 +136,7 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Confirm password</FormLabel>
               <FormControl>
-                <Input placeholder="****" type="password" {...field} />
+                <PasswordInput placeholder="****" type="password" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>

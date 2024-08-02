@@ -1,4 +1,14 @@
 import * as v from 'valibot';
+
+export const PasswordSchema = v.pipe(
+  v.string(),
+  v.minLength(12, 'Password must be at least 12 characters long'),
+  v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
+  v.regex(/[a-z]/, "Password must contain at least one lowercase letter" ),
+  v.regex(/[0-9]/,  "Password must contain at least one number" ),
+  v.regex(/[@$!%*?&]/,  "Password must contain at least one special character ex: (@$!%*?&)")
+)
+
 export const SignUpSchema = v.pipe(
 v.object({
     email:  v.pipe(v.string(),v.nonEmpty('Please enter your email.'),v.email("Invalid Email address")), 
@@ -10,11 +20,7 @@ v.object({
         v.string(),
         v.nonEmpty('Please enter your LastName.'),
         v.minLength(2 , "Last Must Have Two characters or more")),
-    password: v.pipe(
-          v.string(),
-          v.nonEmpty('Please enter your password.'),
-          v.minLength(8, 'Your password must have 8 characters or more.')
-        ),
+    password: PasswordSchema,
     confirmPassword: v.string(),
   }),
   v.forward(
@@ -28,16 +34,8 @@ v.object({
 )
 export const NewPasswordSchema = v.pipe(
   v.object({
-    password: v.pipe(
-      v.string(),
-      v.nonEmpty('Please enter your password.'),
-      v.minLength(6, 'Password must be at least 6 characters long')
-    ),
-    confirmPassword: v.pipe(
-      v.string(),
-      v.nonEmpty('Please confirm your password.'),
-      v.minLength(6, 'Password must be at least 6 characters long')
-    ),
+    password:PasswordSchema,
+    confirmPassword: v.string(),
   }),
   v.forward(
     v.partialCheck(
@@ -55,11 +53,7 @@ export const SignInSchema = v.object({
     v.nonEmpty('Please enter your email.'),
     v.email("Invalid email address")
   ),
-  password: v.pipe(
-    v.string(),
-    v.nonEmpty('Please enter your password.'),
-    v.minLength(6, 'Password must be at least 6 characters long')
-  )
+  password: PasswordSchema
 });
 
 export const ResetPasswordSchema = v.object({

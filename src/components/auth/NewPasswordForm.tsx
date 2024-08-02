@@ -21,6 +21,7 @@ import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { useEffect } from "react"
 import { NewPasswordSchema } from '@root/src/valibot/SchemaTypes';
+import PasswordComplexity from '../PasswordComplexity';
 
 export function NewPasswordForm() {
   // secition 1 
@@ -78,6 +79,9 @@ export function NewPasswordForm() {
             </FormItem>
           )}
         />
+        {form.watch() && form.formState.dirtyFields.password && (
+          <PasswordComplexity password={form.getValues('password')} />
+        )}
         <FormField
           control={form.control}
           name="confirmPassword"

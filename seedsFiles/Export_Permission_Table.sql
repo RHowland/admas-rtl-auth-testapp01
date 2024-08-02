@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS permissions (
     permission_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     permission_name    TEXT NOT NULL,
     permission_type    TEXT NOT NULL CHECK(permission_type IN ('page', 'content')),
-    created_at         TEXT DEFAULT CURRENT_TIMESTAMP,
+    created_at         TEXT DEFAULT (current_timestamp),
 	updated_at         TEXT
 );
 
