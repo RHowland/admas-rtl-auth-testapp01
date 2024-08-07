@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
-import { signIn } from "@/lib/actions/auth.actions"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useLoading } from "@/hooks/useLoading"
@@ -26,12 +25,12 @@ import { useState } from 'react';
 import CountdownTimer from '../CountdownTimer';
 import { PasswordInput } from '../ui/passwordInput';
 import PasswordComplexity from '../PasswordComplexity';
+import { signIn } from '@root/src/lib/actions/auth/signIn';
 
 
 export function SignInForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
   const [nextLoginTime , setNextLoginTime] = useState(0);
-  const router = useRouter()
   const form = useForm<v.InferOutput<typeof SignInSchema>>({
     resolver: valibotResolver(SignInSchema),
     mode : "onChange",
@@ -40,13 +39,12 @@ export function SignInForm() {
       password: "",
     },
   })
-
   // Section 1 
   async function onSubmit(values: v.InferOutput<typeof SignInSchema>) {
     handleLoadingState({isLoading : true});
     const res = await signIn(values)
     if(res?.data?.nextAttemptTime){
-      setNextLoginTime(res.data.nextAttemptTime);
+      setNextLoginTime(() => Number(res.data.nextAttemptTime));
     }
     if (res.success) {
       toast({
@@ -68,7 +66,8 @@ export function SignInForm() {
   return (
     // Section 2 
     <Form {...form}>
-      {nextLoginTime > 0 && ( <CountdownTimer  nextAttemptTime={nextLoginTime}  />)}
+      {/* <CountdownTimer key={nextLoginTime} stateAction={setNextLoginTime}  nextAttemptTime={nextLoginTime}  /> */}
+      {nextLoginTime > 0 && ( <CountdownTimer key={nextLoginTime} stateAction={setNextLoginTime}  nextAttemptTime={nextLoginTime}  />)}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
         <FormField
           control={form.control}

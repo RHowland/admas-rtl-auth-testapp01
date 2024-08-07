@@ -1,7 +1,10 @@
 // Component Name : SignUpPage
 
-import { SignUpForm } from "@/components/auth/SignUpForm"
+
 import { validateRequest } from "@/lib/lucia"
+import { EmployeeSignUpForm } from "@root/src/components/auth/signup/employeeSignup/EmployeeSignUpForm"
+import SignUp from "@root/src/components/auth/signup/SignUp"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 
 export default async function SignUpPage() {
@@ -16,10 +19,18 @@ export default async function SignUpPage() {
     <div className="pt:mt-0 mx-auto flex flex-col items-center justify-center px-6 pt-8 dark:bg-gray-900 md:h-screen">
       <div className="w-full max-w-xl space-y-8 rounded-lg bg-white p-6 shadow dark:bg-gray-800 sm:p-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Create a Free Account
+          Create an Account
         </h2>
         {/* section 2 */}
-        <SignUpForm />
+          <SignUp />
+        <div className="flex gap-2">
+        <p>Already have an account?</p>
+        <Link className="text-blue-700  hover:bg-slate-200 rounded-md" href="/sign-in">Sign-In Now</Link>
+      </div>
+      <div className="flex gap-2">
+        <p>Resend Email Verification</p>
+        <Link className="text-blue-700  hover:bg-slate-200 rounded-md" href="/resend-verification">Resend E-verification</Link>
+      </div>
       </div>
     </div>
   )

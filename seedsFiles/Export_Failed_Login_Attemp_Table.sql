@@ -4,6 +4,7 @@ BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS failed_login_attempts (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	user_email TEXT NOT NULL,
+	reason TEXT,
 	timestamp TEXT,
 	FOREIGN KEY (user_email) REFERENCES users(user_email) ON UPDATE no action ON DELETE cascade
 );

@@ -17,22 +17,21 @@ import { Input } from "@/components/ui/input"
 
 import { toast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { signUp } from "@/lib/actions/auth.actions"
-import Link from "next/link"
+import { customerSignUp } from "@/lib/actions/auth.actions"
 import { MailType } from "@/types"
 import Spinner from "@/components/Sppinner"
 import { useLoading } from "@/hooks/useLoading"
 import { useEffect } from "react"
-import { SignUpSchema } from '@root/src/valibot/SchemaTypes';
-import { PasswordInput } from '../ui/passwordInput';
-import PasswordComplexity from '../PasswordComplexity';
+import { CustomerSignUpSchema } from '@root/src/valibot/SchemaTypes';
+import { PasswordInput } from '@root/src/components/ui/passwordInput';
+import PasswordComplexity from '@root/src/components/PasswordComplexity';
 
-export function SignUpForm() {
+export function CustomerSignUpForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
   const router = useRouter()
 
-  const form = useForm<v.InferOutput<typeof SignUpSchema>>({
-    resolver: valibotResolver(SignUpSchema),
+  const form = useForm<v.InferOutput<typeof CustomerSignUpSchema>>({
+    resolver: valibotResolver(CustomerSignUpSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -43,9 +42,9 @@ export function SignUpForm() {
   })
 
   // section 1 
-  async function onSubmit(values: v.InferOutput<typeof SignUpSchema>) {
+  async function onSubmit(values: v.InferOutput<typeof CustomerSignUpSchema>) {
     handleLoadingState({isLoading : true})
-    const res = await signUp(values)
+    const res = await customerSignUp(values)
     if (res.success) {
       toast({
         variant: "default",
@@ -144,15 +143,6 @@ export function SignUpForm() {
         />
         <Button type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
       </form>
-      {/* section 3  */}
-      <div className="flex gap-2">
-        <p>Already have an account?</p>
-        <Link className="text-blue-700  hover:bg-slate-200 rounded-md" href="/sign-in">Sign-In Now</Link>
-      </div>
-      <div className="flex gap-2">
-        <p>Resend Email Verification</p>
-        <Link className="text-blue-700  hover:bg-slate-200 rounded-md" href="/resend-verification">Resend E-verification</Link>
-      </div>
     </Form>
   )
 }

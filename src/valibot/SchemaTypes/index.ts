@@ -9,9 +9,11 @@ export const PasswordSchema = v.pipe(
   v.regex(/[@$!%*?&]/,  "Password must contain at least one special character ex: (@$!%*?&)")
 )
 
-export const SignUpSchema = v.pipe(
+export const EmailSchema =  v.pipe(v.string(),v.nonEmpty('Please enter your email.'),v.email("Invalid Email address"));
+
+export const CustomerSignUpSchema = v.pipe(
 v.object({
-    email:  v.pipe(v.string(),v.nonEmpty('Please enter your email.'),v.email("Invalid Email address")), 
+    email:  EmailSchema,
     firstName: v.pipe(
       v.string(),
       v.nonEmpty('Please enter your FirstName.'),
@@ -32,6 +34,25 @@ v.object({
     ['confirmPassword']
   )
 )
+export const EmployeeSignUpSchema = v.pipe(
+  v.object({
+      email: EmailSchema,
+      securityAnswer1: v.pipe(v.string(),v.nonEmpty('Please answer the first security questions')),
+      securityAnswer2: v.pipe(v.string(),v.nonEmpty('Please answer the second security questions')),
+      otp: v.pipe(v.string(),v.nonEmpty('Please place otp.')),
+      password: PasswordSchema,
+      confirmPassword: v.string(),
+    }),
+    v.forward(
+      v.partialCheck(
+        [['password'], ['confirmPassword']],
+        (input) => input.password === input.confirmPassword,
+        'The two passwords do not match.'
+      ),
+      ['confirmPassword']
+    )
+  )
+
 export const NewPasswordSchema = v.pipe(
   v.object({
     password:PasswordSchema,
@@ -48,11 +69,7 @@ export const NewPasswordSchema = v.pipe(
 );
 
 export const SignInSchema = v.object({
-  email: v.pipe(
-    v.string(),
-    v.nonEmpty('Please enter your email.'),
-    v.email("Invalid email address")
-  ),
+  email: EmailSchema,
   password: PasswordSchema
 });
 

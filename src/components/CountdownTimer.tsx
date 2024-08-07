@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
-const CountdownTimer = ({ nextAttemptTime }) => {
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Button } from './ui/button';
+
+
+const CountdownTimer = ({ nextAttemptTime , stateAction }) => {
   const calculateTimeLeft = (leftTime : number) => {
     const difference = leftTime - 1000;
     if (difference > 0) {
@@ -23,29 +34,61 @@ const CountdownTimer = ({ nextAttemptTime }) => {
     };
   };
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(Number(nextAttemptTime)));
+  const [timeLeft, setTimeLeft] = useState({
+    success: false,
+    leftTime : nextAttemptTime,
+    message: ""
+  });
 
-  useEffect(() => {
+  const [dailogState , setDailogStare] = useState(true);
 
-    if(timeLeft.success) return;
+  const handleOpenChange = () => {
+    setDailogStare(!dailogState)
+  }
 
+    useEffect(() => {
+      if(timeLeft.leftTime <= 0) stateAction(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[timeLeft.leftTime]);
+    
+    useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft( (prv) => {
         const refineTimeLeft = calculateTimeLeft(prv.leftTime);
-        console.log(refineTimeLeft);
         return {...refineTimeLeft }
       })
       
     }, 1000);
-
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
   return (
-    <div className={`${timeLeft.success? 'text-green-500 ' : 'text-red-500 '}text-xl font-bold`}>
-      {timeLeft.message}
-    </div>
+
+    <Dialog open={dailogState} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogHeader className='flex flex-col items-center gap-2'>
+          <DialogTitle>Processing Occurring,</DialogTitle>
+          <DialogDescription>
+            {
+              timeLeft.success? timeLeft.message : (
+                `Please wait for ${timeLeft.message}`
+              )
+            }
+          </DialogDescription>
+          <Button type="button" onClick={handleOpenChange} variant="default">
+              OK
+            </Button>
+        </DialogHeader>
+            
+      </DialogContent>
+    </Dialog>
+
+
+
+    // <div className={`${timeLeft.success? 'text-green-500 ' : 'text-red-500 '}text-xl font-bold`}>
+    //   {timeLeft.message}
+    // </div>
   );
 };
 

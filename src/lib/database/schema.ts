@@ -27,6 +27,11 @@ export const users = sqliteTable("users", {
   softDeleteFlag:  text("soft_delete_flag", {
     length: 2,
   }),
+  otp: text("one_time_password"),
+  securityQuestion1 : text("security_question_1"),
+  securityAnswer1 : text("security_answer_1"),
+  securityQuestion2 : text("security_question_2"),
+  securityAnswer2 : text("security_answer_2"),
   deletedAt: text("deleted_at"),
   isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
   createdAt: text("created_at").default(sql`current_timestamp`),
@@ -38,6 +43,7 @@ export const failedLoginAttempts = sqliteTable("failed_login_attempts", {
     mode: 'number'
   }).primaryKey({ autoIncrement: true }),
     userEmail: text('user_email').notNull().references(() => users.userEmail, { onDelete: 'cascade' }).notNull(),
+    reason: text('reason'),
     timeStamp: text("timestamp").notNull(),
 },(table) => ({
   unique: uniqueIndex("unique_failed_login_attempts").on(table.userEmail, table.timeStamp)
