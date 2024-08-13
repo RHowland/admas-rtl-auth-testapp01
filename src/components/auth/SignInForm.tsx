@@ -17,20 +17,21 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { SignInSchema } from '@root/src/valibot/SchemaTypes';
 import { useState } from 'react';
-import CountdownTimer from '../CountdownTimer';
-import { PasswordInput } from '../ui/passwordInput';
+import FailedLoginModal from '../FailedLoginModal';
+import { PasswordInput } from '../ui/custom/passwordInput';
 import PasswordComplexity from '../PasswordComplexity';
 import { signIn } from '@root/src/lib/actions/auth/signIn';
+import { setUserInfo } from '@root/src/lib/client/getAndSetUserInfo';
 
 
 export function SignInForm() {
   const {state : LoadingState , handleStateChange : handleLoadingState } = useLoading();
   const [nextLoginTime , setNextLoginTime] = useState(0);
+
   const form = useForm<v.InferOutput<typeof SignInSchema>>({
     resolver: valibotResolver(SignInSchema),
     mode : "onChange",
@@ -52,9 +53,7 @@ export function SignInForm() {
         description: "Signed in successfully",
       });
       handleLoadingState({isLoading : false});
-      if(typeof window){
-        window.location.reload();
-      }
+      setUserInfo(res.data?.user);
       return;
     }
     toast({
@@ -66,8 +65,7 @@ export function SignInForm() {
   return (
     // Section 2 
     <Form {...form}>
-      {/* <CountdownTimer key={nextLoginTime} stateAction={setNextLoginTime}  nextAttemptTime={nextLoginTime}  /> */}
-      {nextLoginTime > 0 && ( <CountdownTimer key={nextLoginTime} stateAction={setNextLoginTime}  nextAttemptTime={nextLoginTime}  />)}
+      {nextLoginTime > 0 && ( <FailedLoginModal key={nextLoginTime} stateAction={setNextLoginTime}  nextAttemptTime={nextLoginTime}  />)}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
         <FormField
           control={form.control}
@@ -99,7 +97,7 @@ export function SignInForm() {
           <PasswordComplexity password={form.getValues('password')} />
         )}
         
-        <Button type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
+        <Button type="submit" disabled={LoadingState.isLoading || nextLoginTime > 0}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
       </form>
       {/* Section 3 */}
       <div className="flex gap-2">

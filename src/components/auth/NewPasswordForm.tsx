@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { useRouter, useSearchParams } from "next/navigation"
-import { newPassword } from "@/lib/actions/auth.actions"
+import { newPassword } from "@/lib/actions/auth/newPassword"
 import { useLoading } from "@/hooks/useLoading"
 import Spinner from "@/components/Sppinner"
 import { useEffect } from "react"

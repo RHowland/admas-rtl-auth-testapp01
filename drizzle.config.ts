@@ -13,7 +13,7 @@ if (!DATABASE_URL) {
 }
 
 export default {
-  schema: './src/lib/database/schema.ts',
+  schema: './database/schema.ts',
   out: './drizzle',
   driver: 'better-sqlite',
   dbCredentials: {

@@ -34,9 +34,9 @@
 
 
 import { MailType } from "@root/src/types";
-import { generateVerificationToken } from "../token";
+import { generateVerificationToken } from "../service/token";
 import { db } from "@root/dbConnect";
-import { verificationTokens as verificationTokenSchema } from "@/lib/database/schema"
+import { verificationTokens as verificationTokenSchema } from "@root/database/schema"
 
 
 export const storeToken = async ({type , userId} : {type : MailType , userId : number}) => {

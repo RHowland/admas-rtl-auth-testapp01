@@ -1,7 +1,7 @@
 // Component Name : SignInPage
 
 import { SignInForm } from "@/components/auth/SignInForm"
-import { validateRequest } from "@/lib/lucia"
+import { validateRequest } from "@/lib/service/lucia"
 import { redirect } from "next/navigation"
 
 export default async function SignUpPage() {

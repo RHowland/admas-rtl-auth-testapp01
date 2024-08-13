@@ -42,10 +42,10 @@
 "use server";
 
 import { db } from "@root/dbConnect"
-import { verificationTokens as verificationTokenSchema } from "../database/schema"
+import { verificationTokens as verificationTokenSchema } from "../../../database/schema"
 import { eq } from "drizzle-orm"
 import { MailType } from "@root/src/types";
-import { users as userSchema } from "@root/src/lib/database/schema";
+import { users as userSchema } from "@root/database/schema";
 import { formatDate } from "../utils";
 
 

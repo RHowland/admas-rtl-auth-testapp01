@@ -1,34 +1,27 @@
 import { db } from "@root/dbConnect";
-import { eq, asc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
-import { failedLoginAttempts } from "@/lib/database/schema";
+import { failedLoginAttempts } from "@root/database/schema";
 
 
-const ATTEMPT_WINDOW_INCREMENT = 1000 * Number(process.env.ATTEMPT_WINDOW_SEC);
+export const ATTEMPT_WINDOW = 1000 * Number(process.env.ATTEMPT_WINDOW_SEC);
 
 export const canLogedIn = async (userEmail: string) => {
-  
+
   const attempts = await db
     .select()
     .from(failedLoginAttempts)
     .where(
         eq(failedLoginAttempts.userEmail, userEmail)
     )
-    .orderBy(asc(failedLoginAttempts.timeStamp));
+    .orderBy(desc(failedLoginAttempts.timeStamp)).limit(1);
     const attemptCount = attempts.length;
+    if(attemptCount === 0) return ({ canAttempt: true });
 
-    if(attemptCount == 0) return ({ canAttempt: true });
-  
-  const blockedSec = attemptCount == 1 ? 10 * 1000 : (attemptCount - 1)  * ATTEMPT_WINDOW_INCREMENT;
-
-  const blockedInRealTime = (new Date(attempts[attemptCount - 1].timeStamp)).getTime() + blockedSec;
-  
-  if (blockedInRealTime < Date.now()) {
-    return { canAttempt: true };
-  } else {
-    const nextAttemptTime = blockedInRealTime -  Date.now();
-    return { canAttempt: false, nextAttemptTime };
-  }
+    const nextAttemptTime = (new Date(attempts[0].timeStamp)).getTime() + ATTEMPT_WINDOW - Date.now();
+    const nextAttemptDate = new Date( Date.now() + nextAttemptTime).toISOString();
+    if (nextAttemptTime > 0)  return ({ canAttempt: false, nextAttemptTime  , nextAttemptDate});
+    return ({ canAttempt: true });
 };
 
 export const recordFailedLoginAttempt = async (userEmail: string , reason : string) => {

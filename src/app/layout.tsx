@@ -5,8 +5,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import NavigationBar from "@/components/NavigationBar"
-import { validateRequest } from "../lib/lucia"
-import { signOut } from "../lib/actions/auth.actions";
+import { validateRequest } from "../lib/service/lucia"
+import { LoggingProvider } from "../providers/LoggingProvider"
 
 // section 1 
 const inter = Inter({ subsets: ["latin"] })
@@ -26,9 +26,11 @@ export default async function RootLayout({
     // section 2 
     <html lang="en">
       <body className={inter.className}>
-      <NavigationBar user={user} signOut={signOut}/>
+      <LoggingProvider>
+        <NavigationBar user={user} />
         {children}
         <Toaster />
+      </LoggingProvider>
       </body>
     </html>
   )

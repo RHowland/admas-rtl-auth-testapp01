@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
-import { resendEmailVerification } from "@/lib/actions/auth.actions"
+import { resendEmailVerification } from "@/lib/actions/auth/resendEmailVerification"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MailType } from "@/types"

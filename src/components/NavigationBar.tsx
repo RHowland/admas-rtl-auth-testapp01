@@ -1,82 +1,165 @@
 // Component Name : NavigationBar
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-// import { validateRequest } from "@/lib/lucia";
-import { Button } from "./ui/button";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
+  NavigationMenuTrigger,
 } from "./ui/navigation-menu";
+import Container from "@/components/ui/custom/container";
+import { getUserInfo, setUserInfo } from "../lib/client/getAndSetUserInfo";
+import SignOutBtn from "./auth/SignOutBtn";
+import { useLogging } from "../providers/LoggingProvider";
+import Spinner from "./Sppinner";
 
-interface INavigationBar {
-  user: any;
-  signOut: () => void;
-}
 
-const NavigationBar = ({ user, signOut }: INavigationBar) => {
-  // section 1
-  if (!user) {
-    return (
-      <div className="mx-auto w-11/12 mt-2 flex items-center justify-between">
-        <Link className="p-4 hover:bg-slate-200 rounded-md font-bold" href="/">
-          HOME
-        </Link>
-        <div className="flex justify-end items-end">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link
-                  className="p-4 hover:bg-slate-200 rounded-md"
-                  href="/sign-in"
-                >
-                  sign-in
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link
-                  className="p-4 hover:bg-slate-200 rounded-md"
-                  href="/sign-up"
-                >
-                  sign-up
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-      </div>
-    );
+const verticalMenu = [
+  {
+    name: "User Data",
+    href: "/userDataPage",
+  },
+  {
+    name: "Analytics",
+    href: "/analyticsPage",
+  },
+  {
+    name: "Content",
+    href: "/contentPage",
+  },
+  {
+    name: "Proposals",
+    href: "/proposalPage",
+  },
+  {
+    name: "Log Data",
+    href: "/logDataPage",
+  },
+];
+
+
+const NavigationBar = ({ user  }) => {
+  const {loggingState, toggleLogging}  =useLogging()
+
+  useEffect(()=>{
+    if(getUserInfo() !== JSON.stringify(user)){
+      setUserInfo(user);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+  
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if(event.key === "userState") {
+        window.location.reload();
+    }
   }
-  // section 2
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   return (
-    <div className="mx-auto w-11/12 mt-2 flex items-center justify-between">
-      <Link className="p-4 hover:bg-slate-200 rounded-md font-bold" href="/">
-        HOME
-      </Link>
-      <div className="flex justify-end items-end">
+    <Container>
+      <div className="max-w-full py-4 flex justify-between items-center">
+          <div>
+            <Link  className="p-4 hover:bg-slate-200 rounded-md" href="/">
+              HOME
+            </Link>
+          </div>
         <NavigationMenu>
           <NavigationMenuList>
+            <NavigationMenuItem className="relative">
+              <NavigationMenuTrigger>
+                <Link href={"/dashboardPage"} >
+                  Dashboard
+                </Link> 
+                </NavigationMenuTrigger>
+              <NavigationMenuContent className="bg-slate-100 flex flex-col">
+                {verticalMenu.map((v, index) => (
+                  <Link
+                    key={v.name + index}
+                    className=" hover:bg-slate-200 rounded-md min-w-32 p-4 flex justify-items-center items-center"
+                    href={v.href}
+                  >
+                    {v.name}
+                  </Link>
+                ))}
+              </NavigationMenuContent>
+            </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link
-                className="p-4 hover:bg-slate-200 rounded-md"
-                href="/dashboard"
-              >
-                Dashboard
+              <Link  className="p-3 hover:bg-slate-200 rounded-md" href="/priceQuotePage">
+                PriceQuote
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <form action={signOut}>
-                <Button type="submit">Sign out</Button>
-              </form>
+              <Link className="p-3 hover:bg-slate-200 rounded-md" href="/appointmentPage">
+                Appointments
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <span onClick={toggleLogging} className={`${loggingState !== undefined? "p-3" : ""} cursor-pointer    hover:bg-slate-200 rounded-md`}>
+                {
+                  loggingState === undefined ? 
+                  <Spinner w={4} h={4} />
+                  :
+                    loggingState ? "DisableLogging" : "EnableLogging"
+                }
+                
+              </span>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+
+        <NavigationMenu>
+        {!user && (
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <Link
+                className="p-3 hover:bg-slate-200 rounded-md"
+                href="/sign-in"
+              >
+                sign-in
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link
+                className="p-3 hover:bg-slate-200 rounded-md"
+                href="/sign-up"
+              >
+                sign-up
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link
+                className="p-3 hover:bg-slate-200 rounded-md"
+                href="/sign-up/empl"
+              >
+                empl-sign-Up
+              </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        )}
+
+        {user && (
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <p>{user.name}</p>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <SignOutBtn />
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        )}
+        </NavigationMenu>
       </div>
-    </div>
+    </Container>
   );
 };
 
@@ -99,11 +182,7 @@ export default NavigationBar;
  *
  * ------------------------------
  * Section Comments:   (Enter "none" if you have no comments)
- * Section 1:
- * Renders the navigation bar for unauthenticated users, providing links to the home, sign-in, and sign-up pages.
- *
- * Section 2:
- * Renders the navigation bar for authenticated users, providing links to the home and dashboard pages, along with a sign-out button.
+
  *
  *
  * ------------------------------
@@ -118,4 +197,3 @@ export default NavigationBar;
  * Answer  : NO.
  *
  */
-
