@@ -1,0 +1,68 @@
+Details about Role_Permissions file changes.txt
+
+File Name: Export_Role_Permissions_Table.sql
+
+Date Edited: 2024-08-14
+
+Edited by: Rich Howland
+
+The purpose of this editing session was to populate 
+the role_permissions data table with explicit 
+permissions data for all 12 roles and all 11 
+permissions, resulting in 132 data rows. 
+
+I am writing this detailed document because I do not 
+have any experience working with the SQLite database 
+and if I make a mistake, I will have documented that 
+mistake so I will not repeat it in the future. 
+
+
+Steps to make this change:
+01 Before I edited this file, I made this copy: 
+   Export_Role_Permissions_Table_backup_01.sql
+
+02 Before I executed the revised sql statement, 
+   I made this copy of the sqlite.db file:
+   sqlite - Copy.db
+
+03 I opened the sqlite.db database using th 
+   SQLiteStudio v3.4.4 app.
+
+04 I deleted the existing role_permissions data 
+   table with this command: 
+     DROP TABLE IF EXISTS role_permissions;
+
+05 I copied the contents of the .sql file: 
+      Export_Role_Permissions_Table.sql
+   and pasted that contents into the Query 
+   panel and clicked the blue arrow icon to 
+   execute the sql script. 
+
+   After clicking the blue arrow icon, a 
+   "Query parameters" window appeared which I 
+    captured with Snagit.
+
+   At the top of the window this heading appeared: 
+   "Please provide values for query parameters".
+
+   Below the heading were four fields.  
+
+   Using Notepad++ I searched the script for any
+   '?', ':', or '@' characters that might be 
+   coded incorrectly.  There are no '?' or '@' 
+   characters.  There are numerous ':' characters 
+   but all of them are either in comment lines 
+   or are in date values contained in single 
+   quote characters. 
+
+   However, I DID FIND some coding errors where 
+   some values were missing a closing apostrophe 
+   and comma.  I fixed those errors, re-executed 
+   the sql script and it worked OK. 
+
+06 After executing the .sql statement that re-created 
+   the role_permissions table, I ran a select query 
+   and all 132 rows appeared. 
+
+
+(End of File)
