@@ -67,8 +67,8 @@ CREATE TABLE `users` (
 	`user_last_name` text(255),
 	`user_email` text(255) NOT NULL,
 	`hashed_password` text(255),
-	`bypass_rbac_flag` text(2),
-	`soft_delete_flag` text(2),
+	`bypass_rbac_flag` text DEFAULT 'N' NOT NULL,
+	`soft_delete_flag` text DEFAULT 'N' NOT NULL,
 	`one_time_password` text,
 	`user_type` text NOT NULL,
 	`is_one_time_pwd_used` text DEFAULT 'N' NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE `users` (
 	`security_question_2` text,
 	`security_answer_2` text,
 	`deleted_at` text,
-	`is_verified` integer DEFAULT false NOT NULL,
+	`is_verified` text DEFAULT 'N' NOT NULL,
 	`created_at` text DEFAULT current_timestamp,
 	`updated_at` text
 );

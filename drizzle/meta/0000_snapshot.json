@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "062705c3-7311-496e-95bb-f4b9a037bfca",
+  "id": "313e60a9-e571-443e-8977-15d22a102363",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "failed_login_attempts": {
@@ -524,17 +524,19 @@
         },
         "bypass_rbac_flag": {
           "name": "bypass_rbac_flag",
-          "type": "text(2)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'N'"
         },
         "soft_delete_flag": {
           "name": "soft_delete_flag",
-          "type": "text(2)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'N'"
         },
         "one_time_password": {
           "name": "one_time_password",
@@ -595,11 +597,11 @@
         },
         "is_verified": {
           "name": "is_verified",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": false
+          "default": "'N'"
         },
         "created_at": {
           "name": "created_at",

@@ -9,7 +9,7 @@ export const PasswordSchema = v.pipe(
   v.regex(/[@$!%*?&]/,  "Password must contain at least one special character ex: (@$!%*?&)")
 )
 
-export const EmailSchema =  v.pipe(v.string(),v.nonEmpty('Please enter your email.'),v.email("Invalid Email address"));
+export const EmailSchema =  v.pipe(v.string(),v.nonEmpty('Please enter your email.'),v.email("Invalid Email address") , v.maxLength(40 , "email Max Length is 40"), );
 
 export const CustomerSignUpSchema = v.pipe(
 v.object({
@@ -17,11 +17,15 @@ v.object({
     firstName: v.pipe(
       v.string(),
       v.nonEmpty('Please enter your FirstName.'),
-      v.minLength(2 , "First Must Have Two characters or more")),
+      v.minLength(2 , "First Name Must Have Two characters or more"),
+      v.maxLength(10 , "First Name Max Length is 10"),
+    ),
     lastName: v.pipe(
         v.string(),
         v.nonEmpty('Please enter your LastName.'),
-        v.minLength(2 , "Last Must Have Two characters or more")),
+        v.minLength(2 , "Last Name Must Have Two characters or more"),
+        v.maxLength(10 , "Last Name Max Length is 10"),
+      ),
     password: PasswordSchema,
     confirmPassword: v.string(),
   }),

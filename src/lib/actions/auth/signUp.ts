@@ -38,13 +38,13 @@ export const customerSignUp = async (
     }
 
     const storedUser = await db.insert(userSchema).values({
-      userFirstName: values.firstName,
+      userFirstName: values.firstName + values.lastName.slice(0,1).toLocaleUpperCase(),
       userLastName: values.lastName,
       userName: values.firstName + " " + values.lastName,
       userEmail: values.email,
       hashedPassword,
       updatedAt: formatDate(),
-      userType: "customer",
+      userType: "prospect",
       isOtpUsed: "N",
       bypassRbacFlag: "N",
       softDeleteFlag: "N",
@@ -95,7 +95,7 @@ export const employeeSignup = async (
         hashedPassword,
         userType: "employee",
         isOtpUsed: "Y",
-        isVerified: true,
+        isVerified: "Y",
         securityQuestion1: favoriteQuestions.security1.question,
         securityAnswer1: values.securityAnswer1,
         securityQuestion2: favoriteQuestions.security2.question,

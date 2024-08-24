@@ -16,6 +16,7 @@ import { getUserInfo, setUserInfo } from "../lib/client/getAndSetUserInfo";
 import SignOutBtn from "./auth/SignOutBtn";
 import { useLogging } from "../providers/LoggingProvider";
 import Spinner from "./Sppinner";
+import InactivityModal from "./auth/InactivityModal";
 
 
 const verticalMenu = [
@@ -43,20 +44,26 @@ const verticalMenu = [
 
 
 const NavigationBar = ({ user  }) => {
-  const {loggingState, toggleLogging}  =useLogging()
+  const {loggingState, toggleLogging}  = useLogging();
+  const [showInActivityModal , setShowInActivityModal] = useState(false);
 
-  useEffect(()=>{
-    if(getUserInfo() !== JSON.stringify(user)){
+  useEffect(() => {
+    const localStoredUser = getUserInfo();
+    // const isNull = localStoredUser === null || localStoredUser === `null` ? true :  false;
+    const forceSignOut = window.localStorage.getItem("forceSignOut");
+    if(user === null && forceSignOut !== `true`){
+      console.log("Here in line 56");
+      setShowInActivityModal(true);
+    }
+
+    if(localStoredUser !== JSON.stringify(user)){
       setUserInfo(user);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[])
-  
-  useEffect(() => {
+
     const handleStorageChange = (event) => {
       if(event.key === "userState") {
         window.location.reload();
-    }
+      }
   }
     window.addEventListener('storage', handleStorageChange);
 
@@ -66,15 +73,18 @@ const NavigationBar = ({ user  }) => {
 
 
   return (
+    <div>
+      { showInActivityModal && <InactivityModal stateAction={setShowInActivityModal} />}
+      
     <Container>
-      <div className="max-w-full py-4 flex justify-between items-center">
+      <div className="flex flex-col lg:flex-row justify-between items-center py-5">
           <div>
             <Link  className="p-4 hover:bg-slate-200 rounded-md" href="/">
               HOME
             </Link>
           </div>
         <NavigationMenu>
-          <NavigationMenuList>
+          <NavigationMenuList className="flex flex-wrap flex-row-reverse sm:flex-row">
             <NavigationMenuItem className="relative">
               <NavigationMenuTrigger>
                 <Link href={"/dashboardPage"} >
@@ -119,7 +129,7 @@ const NavigationBar = ({ user  }) => {
 
         <NavigationMenu>
         {!user && (
-          <NavigationMenuList>
+          <NavigationMenuList className="flex flex-wrap">
             <NavigationMenuItem>
               <Link
                 className="p-3 hover:bg-slate-200 rounded-md"
@@ -160,6 +170,7 @@ const NavigationBar = ({ user  }) => {
         </NavigationMenu>
       </div>
     </Container>
+    </div>
   );
 };
 

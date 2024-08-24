@@ -28,7 +28,7 @@ export const resendEmailVerification = async (
     if (!existingUsers[0] || existingUsers.length === 0)
       throw new Error("Email isn't Not Registered , Please signUp");
 
-    if (existingUsers[0].isVerified)
+    if (existingUsers[0].isVerified === "Y")
       throw new Error("Email Already verified. Please Sign-in");
 
     const messageId = await sendMail(

@@ -13,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { useRouter, useSearchParams } from "next/navigation"
 import { newPassword } from "@/lib/actions/auth/newPassword"
@@ -22,6 +21,7 @@ import Spinner from "@/components/Sppinner"
 import { useEffect } from "react"
 import { NewPasswordSchema } from '@root/src/valibot/SchemaTypes';
 import PasswordComplexity from '../PasswordComplexity';
+import { PasswordInput } from '../ui/custom/passwordInput';
 
 export function NewPasswordForm() {
   // secition 1 
@@ -73,7 +73,7 @@ export function NewPasswordForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="****" type="password" {...field} />
+                <PasswordInput placeholder="****" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,7 +89,7 @@ export function NewPasswordForm() {
             <FormItem>
               <FormLabel>Confirm password</FormLabel>
               <FormControl>
-                <Input placeholder="****" type="password" {...field} />
+                <PasswordInput placeholder="****" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

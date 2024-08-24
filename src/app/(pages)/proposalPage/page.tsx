@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { hasPermission } from "@root/src/lib/service/findPermission"
 import SignOutBtn from "@root/src/components/auth/SignOutBtn"
+import AuthCheckHelper from "@root/src/components/auth/AuthCheckHelper"
 
 
 export default async function ProposalPage() {
@@ -12,7 +13,9 @@ export default async function ProposalPage() {
   
   // section 1
   if(!user) {
-    return redirect("/sign-in")
+    return (
+      <AuthCheckHelper user={user} />
+    )
   }
   const isPermitted = await hasPermission(user?.email , 'CanAccessProposalPage')
   if(!isPermitted){

@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import NavigationBar from "@/components/NavigationBar"
 import { validateRequest } from "../lib/service/lucia"
 import { LoggingProvider } from "../providers/LoggingProvider"
+import AutoSignOut from "../components/auth/AutoSignOut"
 
 // section 1 
 const inter = Inter({ subsets: ["latin"] })
@@ -21,16 +22,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { user } = await validateRequest();
+  const { user , session } = await validateRequest();
   return (
     // section 2 
     <html lang="en">
       <body className={inter.className}>
+        <div>
+
+        
       <LoggingProvider>
+        
         <NavigationBar user={user} />
         {children}
+        {session && <AutoSignOut session={session} />}
         <Toaster />
       </LoggingProvider>
+      </div>
       </body>
     </html>
   )

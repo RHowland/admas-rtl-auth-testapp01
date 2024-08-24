@@ -1,27 +1,26 @@
 // Component Name : SignInPage
 
-import { SignInForm } from "@/components/auth/SignInForm"
-import { validateRequest } from "@/lib/service/lucia"
-import { redirect } from "next/navigation"
+import { SignInForm } from "@/components/auth/SignInForm";
+import { validateRequest } from "@/lib/service/lucia";
+import FormPageContainer from "@root/src/components/ui/custom/formPageContainer";
+import { redirect } from "next/navigation";
 
 export default async function SignUpPage() {
-  const { user } = await validateRequest()
-  // section 1 
+  const { user } = await validateRequest();
+  // section 1
   if (user) {
-    return redirect("/")
+    return redirect("/");
   }
   // section 2
   return (
-    <div className="pt:mt-0 mx-auto flex flex-col items-center justify-center px-6 pt-8 dark:bg-gray-900 md:h-screen">
-      <div className="w-full max-w-xl space-y-8 rounded-lg bg-white p-6 shadow dark:bg-gray-800 sm:p-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Sign in to your account
-        </h2>
-        {/* section 3  */}
-        <SignInForm />
-      </div>
-    </div>
-  )
+    <FormPageContainer>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        Sign in to your account
+      </h2>
+      {/* section 3  */}
+      <SignInForm />
+    </FormPageContainer>
+  );
 }
 
 /**
@@ -33,7 +32,7 @@ export default async function SignUpPage() {
  * Dev Initials   : Elias Emon
  * ------------------------------
  * Question: Why was it necessary to create this component?
- * Answer  : This component was necessary to provide a dedicated page for user authentication. It ensures that authenticated users are redirected to the home page and displays the sign-in form for existing users to log in. 
+ * Answer  : This component was necessary to provide a dedicated page for user authentication. It ensures that authenticated users are redirected to the home page and displays the sign-in form for existing users to log in.
  *
  * ------------------------------
  * Question: What does this component do?:

@@ -8,11 +8,7 @@ export const signOut = async () => {
   try {
     const { session } = await validateRequest();
 
-    if (!session) {
-      return {
-        error: "Unauthorized",
-      };
-    }
+    if (!session) throw new Error("Unauthorized");
 
     await lucia.invalidateSession(session.id);
 
@@ -24,8 +20,12 @@ export const signOut = async () => {
       sessionCookie.attributes
     );
   } catch (error: any) {
-    return {
-      error: error?.message,
-    };
+    const sessionCookie = lucia.createBlankSessionCookie();
+
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
   }
 };

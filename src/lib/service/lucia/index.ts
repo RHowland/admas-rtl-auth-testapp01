@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import type { Session, User } from 'lucia';
 import { sqliteDatabase } from "@root/dbConnect";
+import AuthConfig from "@root/src/config_files/AuthConfig";
 
 
 /** adapter: Uses the previously defined SQLite adapter.
@@ -17,10 +18,13 @@ const adapter = new BetterSqlite3Adapter(sqliteDatabase, {
   user: 'users',
   session: 'sessions',
 })
- 
+
+
+
 export const lucia = new Lucia(adapter, {
-  sessionExpiresIn: new TimeSpan(52, "w"),
+  sessionExpiresIn: new TimeSpan(AuthConfig.Max_Inactive_Seconds + AuthConfig.Waiting_Seconds, "s"),
   sessionCookie: {
+    
     attributes: {
       secure: process.env.NODE_ENV === 'production',
     },
@@ -53,25 +57,8 @@ export const validateRequest = cache(
         session: null,
       };
     }
-    
     try {
       const result = await lucia.validateSession(sessionId);
-      if (result.session && result.session.fresh) {
-        const sessionCookie = lucia.createSessionCookie(result.session.id);
-        cookies().set(
-          sessionCookie.name,
-          sessionCookie.value,
-          sessionCookie.attributes
-        );
-      }
-      if (!result.session) {
-        const sessionCookie = lucia.createBlankSessionCookie();
-        cookies().set(
-          sessionCookie.name,
-          sessionCookie.value,
-          sessionCookie.attributes
-        );
-      }
       return result;
     } catch(error) {
       return { user: null, session: null };

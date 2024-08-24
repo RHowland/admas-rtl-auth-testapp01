@@ -3,7 +3,7 @@
 import CustomerSignUpForm from "@root/src/components/auth/signup/CustomerSignUpForm"
 export default async function SignUpPage() {
   return (
-    <div>
+    <div className="h-auto">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Create an Account
         </h2>

@@ -58,7 +58,7 @@ export default function TokenVerificationForm() {
   return (
     // Section 6 
     <form onSubmit={onSubmit} className="space-y-2  w-4/5">
-      <h1>Past your Token</h1>
+      <h1>Paste your Token</h1>
       <Input disabled={LoadingState.isLoading}  type="text" onChange={(e: { target: { value: SetStateAction<string> } }) => setInputToken(e.target.value)} value={inputToken} placeholder="ba85de9fdf3........" />
       <Button type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
     </form>

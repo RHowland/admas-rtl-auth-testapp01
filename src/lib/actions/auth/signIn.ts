@@ -30,7 +30,7 @@ export const signIn = async (values: v.InferOutput<typeof SignInSchema>) => {
     const existingUser = result[0];
 
     if (!existingUser) throw new Error('User not found');
-    if (!existingUser.isVerified) throw new Error("User's email isn't verified. Please verify your email");
+    if (existingUser.isVerified === "N") throw new Error("User's email isn't verified. Please verify your email");
 
     // checking the user already loged in or not
     const sessions = await lucia.getUserSessions(existingUser.id.toString());
@@ -41,7 +41,6 @@ export const signIn = async (values: v.InferOutput<typeof SignInSchema>) => {
 
     
     const isPassed = await canLogedIn(existingUser.userEmail);
-    console.log(JSON.stringify(isPassed));
     if (!isPassed.canAttempt) {
       return {
         success: false,
@@ -76,12 +75,15 @@ export const signIn = async (values: v.InferOutput<typeof SignInSchema>) => {
 
     const sessionCookie = lucia.createSessionCookie(session.id);
 
+    // console.log( "sessionCokkie values" + JSON.stringify(sessionCookie.attributes.));
+    
+
     cookies().set(
       sessionCookie.name,
       sessionCookie.value,
-      sessionCookie.attributes
+      // sessionCookie.attributes
     );
-    const { user } = await lucia.validateSession(session.id);
+    const { user  } = await lucia.validateSession(session.id);
     return {
       success: true,
       message: "Login Successful!",

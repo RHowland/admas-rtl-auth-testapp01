@@ -22,14 +22,14 @@ export const users = sqliteTable("users", {
     length: 255,
   }),
   bypassRbacFlag: text("bypass_rbac_flag", {
-    length: 2,
-  }),
-  softDeleteFlag:  text("soft_delete_flag", {
-    length: 2,
-  }),
+    enum: ["N" , "Y"],
+  }).notNull().default("N"),
+  softDeleteFlag: text("soft_delete_flag", {
+    enum: ["N" , "Y"],
+  }).notNull().default("N"),
   otp: text("one_time_password"),
   userType: text("user_type", {
-    enum: ["customer" , "employee" , "vendor"], 
+    enum: ["customer" , "employee" , "vendor" , "prospect"], 
   }).notNull(),
   isOtpUsed: text("is_one_time_pwd_used", {
     enum: ["N" , "Y"],
@@ -39,7 +39,9 @@ export const users = sqliteTable("users", {
   securityQuestion2 : text("security_question_2"),
   securityAnswer2 : text("security_answer_2"),
   deletedAt: text("deleted_at"),
-  isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
+  isVerified: text('is_verified', {
+    enum: ["N" , "Y"],
+  }).notNull().default("N"),
   createdAt: text("created_at").default(sql`current_timestamp`),
   updatedAt: text("updated_at"),
 });

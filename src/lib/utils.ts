@@ -19,3 +19,15 @@ export function formatDate(date = new Date()) {
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`;   
 
 }
+
+
+export const comparedTwoIsoDate = (date1: string, date2: string) => {
+  
+  const parsedDate1: Date = new Date(date1);
+  const parsedDate2: Date = new Date(date2);
+  
+  // Get the difference in milliseconds
+  const differenceInMilliseconds: number = parsedDate1.getTime() - parsedDate2.getTime();
+  
+  return differenceInMilliseconds;
+}

@@ -1,22 +1,21 @@
-import TokenVerificationForm from "@root/src/components/auth/TokenVerificationForm"
-import { validateRequest } from "@root/src/lib/lucia"
-import { redirect } from "next/navigation"
+import TokenVerificationForm from "@root/src/components/auth/TokenVerificationForm";
+import { validateRequest } from "@/lib/service/lucia";
+import { redirect } from "next/navigation";
+import FormPageContainer from "@root/src/components/ui/custom/formPageContainer";
 
-export default async function VerifyToken (){
-    const { user } = await validateRequest()
-  // section 1 
+export default async function VerifyToken() {
+  const { user } = await validateRequest();
+  // section 1
   if (user) {
-    return redirect("/")
+    return redirect("/");
   }
 
-
   return (
-    <div className="pt:mt-0 mx-auto flex flex-col items-center justify-center px-6 pt-8 dark:bg-gray-900 md:h-screen">
+    <FormPageContainer>
       <TokenVerificationForm />
-    </div>
-  )
+    </FormPageContainer>
+  );
 }
-
 
 /**
  * ---------------------------------------------------------------------
@@ -43,7 +42,7 @@ export default async function VerifyToken (){
  * Answer  : NO.
  * ------------------------------
  * Section Comments:   (Enter "none" if you have no comments)
- * Section 1: 
+ * Section 1:
  * - Checks if the user is authenticated. If so, redirects to the homepage.
  * ------------------------------
  */

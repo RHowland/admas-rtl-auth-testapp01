@@ -4,6 +4,7 @@ import {  validateRequest } from "@/lib/service/lucia"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { hasPermission } from "@root/src/lib/service/findPermission"
+import AuthCheckHelper from "@root/src/components/auth/AuthCheckHelper"
 
 
 export default async function PriceQuotePage() {
@@ -11,7 +12,9 @@ export default async function PriceQuotePage() {
   
   // section 1
   if(!user) {
-    return redirect("/sign-in")
+    return (
+      <AuthCheckHelper user={user} />
+    )
   }
   const isPermitted = await hasPermission(user?.email , 'CanAccessPriceQuotePage')
   if(!isPermitted){

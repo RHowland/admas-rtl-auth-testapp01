@@ -64,7 +64,6 @@ const FailedLoginModal = ({ nextAttemptTime , stateAction }) => {
   },[]);
 
   return (
-
     <Dialog open={dailogState} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader className='flex flex-col items-center gap-2'>

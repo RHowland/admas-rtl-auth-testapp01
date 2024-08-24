@@ -68,7 +68,7 @@ export const verifyToken  = async (token : string , type : string | null) : Prom
             data: {}
         }
     }else if (result[0].type === MailType["signUpVerify"] || result[0].type === MailType["newPassword"]){
-            await db.update(userSchema).set({isVerified : true , updatedAt : formatDate()}).where(eq(userSchema.id , result[0].userId )).returning()
+            await db.update(userSchema).set({isVerified : "Y" , updatedAt : formatDate()}).where(eq(userSchema.id , result[0].userId )).returning()
             await deleteToken(token)
     }else if(result[0].type === MailType["resetPass"]){
         await db.update(verificationTokenSchema).set({type : MailType["newPassword"]}).where(eq(verificationTokenSchema.token , result[0].token )).returning()
