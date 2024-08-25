@@ -5,7 +5,7 @@ import { setUserInfo } from "@root/src/lib/client/getAndSetUserInfo";
 const SignOutBtn = () => {
   const handleSignOut = () => {
     setUserInfo("null");
-    window.localStorage.setItem("forceSignOut", `true`);
+    window.localStorage.setItem("showInactivityModal", `false`);
     // window.location.reload();
   }
   return (

@@ -42,7 +42,7 @@ export function SignInForm() {
   })
   // Section 1 
   async function onSubmit(values: v.InferOutput<typeof SignInSchema>) {
-    window.localStorage.setItem("forceSignOut", `false`);
+    window.localStorage.setItem("showInactivityModal", `true`);
     handleLoadingState({isLoading : true});
     const res = await signIn(values)
     if(res?.data?.nextAttemptTime){

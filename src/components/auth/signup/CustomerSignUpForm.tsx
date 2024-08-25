@@ -64,6 +64,7 @@ export default function CustomerSignUpForm() {
     return () => {
       handleLoadingState({isLoading : false});
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   return (
@@ -141,7 +142,7 @@ export default function CustomerSignUpForm() {
             </FormItem>
           )}
         />
-        <Button className='w-100 h-10' type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
+        <Button className='w-100 h-10 mt-2' type="submit" disabled={LoadingState.isLoading}>{LoadingState.isLoading ? <Spinner /> : "Submit"}</Button>
       </form>
     </Form>
   )

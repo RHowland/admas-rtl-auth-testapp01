@@ -36,11 +36,15 @@ export const customerSignUp = async (
         error: "Email Already Registered",
       };
     }
+    const firstNameTrim = values.firstName.trim();
+    const lastNameTrim = values.lastName.trim();
+    const firstName = firstNameTrim.slice(0, 1).toLocaleUpperCase() + firstNameTrim.slice(1);
+    const lastName = lastNameTrim.slice(0, 1).toLocaleUpperCase() + lastNameTrim.slice(1);
 
     const storedUser = await db.insert(userSchema).values({
-      userFirstName: values.firstName + values.lastName.slice(0,1).toLocaleUpperCase(),
-      userLastName: values.lastName,
-      userName: values.firstName + " " + values.lastName,
+      userFirstName: firstName,
+      userLastName: lastName,
+      userName: firstName + "_" + lastName.slice(0,1),
       userEmail: values.email,
       hashedPassword,
       updatedAt: formatDate(),

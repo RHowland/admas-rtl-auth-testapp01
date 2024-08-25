@@ -50,8 +50,8 @@ const NavigationBar = ({ user  }) => {
   useEffect(() => {
     const localStoredUser = getUserInfo();
     // const isNull = localStoredUser === null || localStoredUser === `null` ? true :  false;
-    const forceSignOut = window.localStorage.getItem("forceSignOut");
-    if(user === null && forceSignOut !== `true`){
+    const showInactivityModal = window.localStorage.getItem("showInactivityModal");
+    if(user === null && showInactivityModal === `true`){
       console.log("Here in line 56");
       setShowInActivityModal(true);
     }

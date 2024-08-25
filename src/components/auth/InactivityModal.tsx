@@ -9,7 +9,7 @@ const InactivityModal = ({stateAction}) => {
   const router = useRouter();
   const handleButton = () => {
     stateAction(false);
-    window.localStorage.setItem("forceSignOut", `true`);
+    window.localStorage.setItem("showInactivityModal", `false`);
     router.push("/sign-in");
   }
   return (
